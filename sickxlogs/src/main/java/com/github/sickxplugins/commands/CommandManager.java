@@ -1,14 +1,19 @@
 package com.github.sickxplugins.commands;
 
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import java.util.Arrays;
 
-public class CommandManager implements CommandExecutor {
+public class CommandManager extends Command {
+
+    public CommandManager() {
+        // This sets the main command name, description, usage message, and aliases
+        super("sickxlogs", "Main command for SickxLogs", "/sickxlogs <info|help>", Arrays.asList("sl"));
+    }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         
         // If the player just types /sl or /sickxlogs with no arguments
         if (args.length == 0) {

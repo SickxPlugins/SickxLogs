@@ -8,7 +8,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // This copies the config.yml from our resources folder to the server's plugins/SickxLogs folder
+        // Copies config.yml from resources folder to the server's plugins/SickxLogs folder
         saveDefaultConfig();
 
         getLogger().info("SickxLogs has been successfully enabled!");
@@ -16,12 +16,8 @@ public class Main extends JavaPlugin {
         // Register the PlayerActionLogger so the server fires the events
         getServer().getPluginManager().registerEvents(new PlayerActionLogger(), this);
 
-        // Register the main command
-        if (getCommand("sickxlogs") != null) {
-            getCommand("sickxlogs").setExecutor(new CommandManager());
-        } else {
-            getLogger().severe("Failed to register the command 'sickxlogs'. Is it in the paper-plugin.yml?");
-        }
+        // Register the command directly to the server's CommandMap
+        getServer().getCommandMap().register("sickxlogs", new CommandManager());
     }
 
     @Override

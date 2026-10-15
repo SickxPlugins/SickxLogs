@@ -4,8 +4,3 @@ main: com.github.sickxplugins.Main
 api-version: '26.1'
 description: A comprehensive logging plugin for server actions.
 authors: [ SickxTea9BitS ]
-
-commands:
-  sickxlogs:
-    description: Main command for SickxLogs.
-    aliases: [sl]

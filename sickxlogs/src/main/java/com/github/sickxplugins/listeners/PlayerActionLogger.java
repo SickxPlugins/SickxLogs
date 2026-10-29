@@ -1,31 +1,32 @@
 package com.github.sickxplugins.listeners;
 
+import com.github.sickxplugins.Main;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class PlayerActionLogger implements Listener {
+    
+    private final Main plugin;
+
+    // The constructor now requires the Main class to access the DatabaseManager
+    public PlayerActionLogger(Main plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         String playerName = event.getPlayer().getName();
         String blockType = event.getBlock().getType().toString();
         
-        // Getting coordinates
         int x = event.getBlock().getX();
         int y = event.getBlock().getY();
         int z = event.getBlock().getZ();
         
-        // Formatting our basic log message
-        String logMessage = "[ACTION] " + playerName + " broke " + blockType + " at X:" + x + " Y:" + y + " Z:" + z;
-        
-        // For now, we will print this directly to the server console. 
-        // Later we can redirect this to a file or database!
-        Bukkit.getLogger().info(logMessage);
+        plugin.getDatabaseManager().logBlockActionAsync(playerName, "BREAK", blockType, x, y, z);
     }
 
     @EventHandler
@@ -37,19 +38,15 @@ public class PlayerActionLogger implements Listener {
         int y = event.getBlock().getY();
         int z = event.getBlock().getZ();
         
-        String logMessage = "[ACTION] " + playerName + " placed " + blockType + " at X:" + x + " Y:" + y + " Z:" + z;
-        Bukkit.getLogger().info(logMessage);
+        plugin.getDatabaseManager().logBlockActionAsync(playerName, "PLACE", blockType, x, y, z);
     }
 
     @EventHandler
     public void onPlayerChat(AsyncChatEvent event) {
         String playerName = event.getPlayer().getName();
         
-        // Modern Paper uses the Adventure API for text (which supports complex coloring/hover events).
-        // To log it cleanly, we convert it back to plain text.
         String message = PlainTextComponentSerializer.plainText().serialize(event.message());
         
-        String logMessage = "[CHAT] " + playerName + ": " + message;
-        Bukkit.getLogger().info(logMessage);
+        plugin.getDatabaseManager().logChatAsync(playerName, message);
     }
 }

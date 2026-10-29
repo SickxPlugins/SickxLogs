@@ -1,2 +1,10 @@
 # SickxLogs Configuration File
-# We will add custom settings here later!
+
+
+# MySQL Database Credentials
+database:
+  host: "enter_hostname"
+  port: 3306
+  database_name: "enter_database_name"
+  username: "enter_username"
+  password: "enter_password"

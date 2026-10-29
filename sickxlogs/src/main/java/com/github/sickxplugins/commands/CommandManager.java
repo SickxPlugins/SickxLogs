@@ -1,5 +1,6 @@
 package com.github.sickxplugins.commands;
 
+import com.github.sickxplugins.Main;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
@@ -7,21 +8,22 @@ import java.util.Arrays;
 
 public class CommandManager extends Command {
 
-    public CommandManager() {
-        // This sets the main command name, description, usage message, and aliases
-        super("sickxlogs", "Main command for SickxLogs", "/sickxlogs <info|help>", Arrays.asList("sl"));
+    private final Main plugin;
+
+    public CommandManager(Main plugin) {
+        // Updated the usage message in the super constructor to include 'db'
+        super("sickxlogs", "Main command for SickxLogs", "/sickxlogs <info|help|db>", Arrays.asList("sl"));
+        this.plugin = plugin;
     }
 
     @Override
     public boolean execute(@NotNull CommandSender sender, @NotNull String commandLabel, @NotNull String[] args) {
         
-        // If the player just types /sl or /sickxlogs with no arguments
         if (args.length == 0) {
-            sender.sendMessage("§cUsage: /sl <info|help>");
+            sender.sendMessage("§cUsage: /sl <info|help|db>");
             return true;
         }
 
-        // Get the first argument (e.g., "info" or "help") and make it lowercase
         String subCommand = args[0].toLowerCase();
 
         switch (subCommand) {
@@ -33,9 +35,19 @@ public class CommandManager extends Command {
             case "help":
                 sender.sendMessage("§a[SickxLogs] §fHelp Menu: §cUnder Development.");
                 break;
+
+            case "database":
+            case "db":
+                // Check if the database manager exists and is connected
+                if (plugin.getDatabaseManager() != null && plugin.getDatabaseManager().isConnected()) {
+                    sender.sendMessage("§a[SickxLogs] §fDatabase Status: §aConnected");
+                } else {
+                    sender.sendMessage("§a[SickxLogs] §fDatabase Status: §cDisconnected §7(Check console/config)");
+                }
+                break;
             
             default:
-                sender.sendMessage("§cUnknown subcommand. Usage: /sl <info|help>");
+                sender.sendMessage("§cUnknown subcommand. Usage: /sl <info|help|db>");
                 break;
         }
 

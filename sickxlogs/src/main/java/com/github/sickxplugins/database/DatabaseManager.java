@@ -6,8 +6,11 @@ import org.bukkit.Bukkit;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseManager {
     private final Main plugin;
@@ -45,7 +48,6 @@ public class DatabaseManager {
     public void createTables() {
         if (!isConnected()) return;
         try (Statement statement = connection.createStatement()) {
-            // Table for Blocks
             statement.execute("CREATE TABLE IF NOT EXISTS block_logs (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY," +
                     "player_name VARCHAR(36) NOT NULL," +
@@ -57,7 +59,6 @@ public class DatabaseManager {
                     "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
                     ")");
 
-            // Table for Chat
             statement.execute("CREATE TABLE IF NOT EXISTS chat_logs (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY," +
                     "player_name VARCHAR(36) NOT NULL," +
@@ -69,7 +70,6 @@ public class DatabaseManager {
         }
     }
 
-    // Runs the database insert in the background asynchronously to prevent server lag
     public void logBlockActionAsync(String playerName, String action, String blockType, int x, int y, int z) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             if (!isConnected()) return;
@@ -102,5 +102,32 @@ public class DatabaseManager {
                 e.printStackTrace();
             }
         });
+    }
+
+    // New method to fetch logs (up to a limit) for a specific player
+    public List<BlockLogEntry> getBlockLogs(String playerName, int limit) {
+        List<BlockLogEntry> logs = new ArrayList<>();
+        if (!isConnected()) return logs;
+        try {
+            String query = "SELECT player_name, action, block_type, x, y, z, timestamp FROM block_logs WHERE player_name = ? ORDER BY timestamp DESC LIMIT ?";
+            PreparedStatement ps = connection.prepareStatement(query);
+            ps.setString(1, playerName);
+            ps.setInt(2, limit);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                logs.add(new BlockLogEntry(
+                        rs.getString("player_name"),
+                        rs.getString("action"),
+                        rs.getString("block_type"),
+                        rs.getInt("x"),
+                        rs.getInt("y"),
+                        rs.getInt("z"),
+                        rs.getTimestamp("timestamp")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return logs;
     }
 }
